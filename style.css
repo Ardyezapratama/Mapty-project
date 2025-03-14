@@ -114,6 +114,7 @@ body {
 	border-radius: 5px;
 	padding: 1.5rem 2.75rem;
 	margin-bottom: 1.7rem;
+	cursor: pointer;
 
 	display: grid;
 	grid-template-columns: 1fr 1fr 1fr 1fr;
