@@ -14,6 +14,7 @@ class Workout {
 }
 
 class Running extends Workout {
+	type = "running";
 	constructor(coords, distance, duration, cadence) {
 		super(coords, distance, duration);
 		this.cadence = cadence;
@@ -27,6 +28,7 @@ class Running extends Workout {
 	}
 }
 class Cycling extends Workout {
+	type = "cycling";
 	constructor(coords, distance, duration, elevationGain) {
 		super(coords, distance, duration);
 		this.elevationGain = elevationGain;
@@ -57,6 +59,8 @@ const inputElevation = document.querySelector(".form__input--elevation");
 class App {
 	#map;
 	#mapEvt;
+	#workouts = [];
+
 	constructor() {
 		// Get the position
 		this._getPosition();
@@ -116,6 +120,8 @@ class App {
 		const type = inputType.value;
 		const distance = Number(inputDistance.value);
 		const duration = Number(inputDuration.value);
+		const { lat, lng } = this.#mapEvt.latlng;
+		let workout;
 
 		// If workout running, create running object;
 		if (type === "running") {
@@ -126,6 +132,8 @@ class App {
 				!positiveInput(distance, duration, cadence)
 			)
 				return alert("Input have to be positive number!");
+
+			workout = new Running([lat, lng], distance, duration, cadence);
 		}
 
 		// If workout cycling, create cycling object;
@@ -137,25 +145,15 @@ class App {
 				!positiveInput(distance, duration, elevation)
 			)
 				return alert("Input have to be positive number");
+
+			workout = new Cycling([lat, lng], distance, duration, elevation);
 		}
 
 		// Add new object to workout array
+		this.#workouts.push(workout);
 
 		// Render workout on map as a marker
-		const { lat, lng } = this.#mapEvt.latlng;
-		L.marker([lat, lng])
-			.addTo(this.#map)
-			.bindPopup(
-				L.popup({
-					maxWidth: 250,
-					minWidth: 100,
-					autoClose: false,
-					closeOnClick: false,
-					className: "running-popup",
-				})
-			)
-			.setPopupContent("Workout")
-			.openPopup();
+		this.renderWorkoutMarker(workout);
 
 		// Render workout list
 
@@ -165,6 +163,22 @@ class App {
 			inputCadence.value =
 			inputElevation.value =
 				"";
+	}
+
+	renderWorkoutMarker(workout) {
+		L.marker(workout.coords)
+			.addTo(this.#map)
+			.bindPopup(
+				L.popup({
+					maxWidth: 250,
+					minWidth: 100,
+					autoClose: false,
+					closeOnClick: false,
+					className: `${workout.type}-popup`,
+				})
+			)
+			.setPopupContent(`${workout.type}`)
+			.openPopup();
 	}
 }
 
