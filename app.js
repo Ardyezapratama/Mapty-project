@@ -3,7 +3,7 @@
 class Workout {
 	date = new Date();
 	id = Date.now().toString().slice(-10);
-	clicks = 0;
+	// clicks = 0;
 
 	constructor(coords, distance, duration) {
 		this.coords = coords; //[lat, lng]
@@ -32,9 +32,9 @@ class Workout {
 		} ${this.date.getDate()}`;
 	}
 
-	click() {
-		this.clicks++;
-	}
+	// 	click() {
+	// 		this.clicks++;
+	// 	}
 }
 
 class Running extends Workout {
@@ -89,8 +89,11 @@ class App {
 	#workouts = [];
 
 	constructor() {
-		// Get the position
+		// Get user's position
 		this._getPosition();
+
+		// Get data from local storage
+		this._getLocalStorage();
 
 		// Sumbit Handler
 		form.addEventListener("submit", this._newWorkout.bind(this));
@@ -126,6 +129,10 @@ class App {
 		}).addTo(this.#map);
 		// Handle Click on map
 		this.#map.on("click", this._showForm.bind(this));
+
+		this.#workouts.forEach((work) => {
+			this._renderWorkoutMarker(work);
+		});
 	}
 
 	_showForm(mapE) {
@@ -202,6 +209,9 @@ class App {
 
 		// Hide the form and clear the input field
 		this._hideForm();
+
+		// Set local storage to all workouts
+		this._setLocalStorage();
 	}
 
 	_renderWorkoutMarker(workout) {
@@ -276,6 +286,7 @@ class App {
 	_moveToPopup(e) {
 		const workoutEl = e.target.closest(".workout");
 		if (!workoutEl) return;
+		console.log(workoutEl);
 
 		const workout = this.#workouts.find(
 			(work) => work.id === workoutEl.dataset.id
@@ -289,7 +300,28 @@ class App {
 		});
 
 		//using the public interface
-		workout.click();
+		// workout.click();
+	}
+
+	_setLocalStorage() {
+		localStorage.setItem("workouts", JSON.stringify(this.#workouts));
+	}
+
+	_getLocalStorage() {
+		const data = JSON.parse(localStorage.getItem("workouts"));
+
+		if (!data) return;
+
+		this.#workouts = data;
+
+		this.#workouts.forEach((work) => {
+			this._renderWorkoutList(work);
+		});
+	}
+
+	reset() {
+		localStorage.removeItem("workouts");
+		location.reload();
 	}
 }
 
