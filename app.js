@@ -286,7 +286,6 @@ class App {
 	_moveToPopup(e) {
 		const workoutEl = e.target.closest(".workout");
 		if (!workoutEl) return;
-		console.log(workoutEl);
 
 		const workout = this.#workouts.find(
 			(work) => work.id === workoutEl.dataset.id
